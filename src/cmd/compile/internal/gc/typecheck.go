@@ -1829,6 +1829,18 @@ func typecheck1(n *Node, top int) (res *Node) {
 			return n
 		}
 
+	case OMIMONA:
+		ok |= ctxStmt
+		if n.List.Len() != 0 {
+			if n.List.Len() == 1 {
+				yyerror("убери свой %v", n.List.Index(0).Typ().String())
+			} else {
+				yyerror("убери свои")
+			}
+			n.Type = nil
+			return n
+		}
+
 	case ORECOVER:
 		ok |= ctxExpr | ctxStmt
 		if n.List.Len() != 0 {

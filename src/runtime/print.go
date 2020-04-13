@@ -103,6 +103,10 @@ func gwrite(b []byte) {
 	gp.writebuf = gp.writebuf[:len(gp.writebuf)+n]
 }
 
+func printwtf() {
+	printstring("Go это почти что динамически типизированный язык, потому что система типов слабееькая и очень часто используются interface{} + type-switch которые по сути и есть динамическая типизация\n")
+}
+
 func printsp() {
 	printstring(" ")
 }

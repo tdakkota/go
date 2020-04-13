@@ -138,6 +138,7 @@ func walkstmt(n *Node) *Node {
 		OPANIC,
 		OEMPTY,
 		ORECOVER,
+		OMIMONA,
 		OGETG:
 		if n.Typecheck() == 0 {
 			Fatalf("missing typecheck: %+v", n)
@@ -545,6 +546,9 @@ opswitch:
 
 	case OPRINT, OPRINTN:
 		n = walkprint(n, init)
+
+	case OMIMONA:
+		n = mkcall("printwtf", nil, init)
 
 	case OPANIC:
 		n = mkcall("gopanic", nil, init, n.Left)

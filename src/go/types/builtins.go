@@ -638,6 +638,12 @@ func (check *Checker) builtin(x *operand, call *ast.CallExpr, id builtinId) (_ b
 		}
 		// trace is only available in test mode - no need to record signature
 
+	case _Mimona:
+		x.mode = novalue
+		if check.Types != nil {
+			check.recordBuiltinType(call.Fun, makeSig(nil))
+		}
+
 	default:
 		unreachable()
 	}

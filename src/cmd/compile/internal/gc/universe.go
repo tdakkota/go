@@ -61,6 +61,7 @@ var builtinFuncs = [...]struct {
 	{"println", OPRINTN},
 	{"real", OREAL},
 	{"recover", ORECOVER},
+	{"mimona", OMIMONA},
 }
 
 // isBuiltinFuncName reports whether name matches a builtin function

@@ -907,6 +907,7 @@ var predeclaredFuncs = map[string]bool{
 	"println": true,
 	"real":    true,
 	"recover": true,
+	"mimona":  true,
 }
 
 var predeclaredConstants = map[string]bool{

@@ -384,7 +384,7 @@ func (e *Escape) stmt(n *Node) {
 		for i, v := range n.List.Slice() {
 			e.assign(asNode(results[i].Nname), v, "return", n)
 		}
-	case OCALLFUNC, OCALLMETH, OCALLINTER, OCLOSE, OCOPY, ODELETE, OPANIC, OPRINT, OPRINTN, ORECOVER:
+	case OCALLFUNC, OCALLMETH, OCALLINTER, OCLOSE, OCOPY, ODELETE, OPANIC, OPRINT, OPRINTN, ORECOVER, OMIMONA:
 		e.call(nil, n, nil)
 	case OGO, ODEFER:
 		e.stmts(n.Left.Ninit)
@@ -737,7 +737,7 @@ func (e *Escape) call(ks []EscHole, call, where *Node) {
 	case OCALLINTER:
 		fntype = call.Left.Type
 		recv = call.Left.Left
-	case OAPPEND, ODELETE, OPRINT, OPRINTN, ORECOVER:
+	case OAPPEND, ODELETE, OPRINT, OPRINTN, ORECOVER, OMIMONA:
 		// ok
 	case OLEN, OCAP, OREAL, OIMAG, OCLOSE, OPANIC:
 		args = []*Node{call.Left}

@@ -134,6 +134,8 @@ const (
 	// testing support
 	_Assert
 	_Trace
+	// прекол
+	_Mimona
 )
 
 var predeclaredFuncs = [...]struct {
@@ -164,6 +166,7 @@ var predeclaredFuncs = [...]struct {
 
 	_Assert: {"assert", 1, false, statement},
 	_Trace:  {"trace", 0, true, statement},
+	_Mimona: {"mimona", 0, false, statement},
 }
 
 func defPredeclaredFuncs() {
