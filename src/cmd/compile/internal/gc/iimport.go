@@ -889,7 +889,7 @@ func (r *importReader) node() *Node {
 		n.Type = r.typ()
 		return n
 
-	case OCOPY, OCOMPLEX, OREAL, OIMAG, OAPPEND, OCAP, OCLOSE, ODELETE, OLEN, OMAKE, ONEW, OPANIC, ORECOVER, OPRINT, OPRINTN:
+	case OCOPY, OCOMPLEX, OREAL, OIMAG, OAPPEND, OCAP, OCLOSE, ODELETE, OLEN, OMAKE, ONEW, OPANIC, ORECOVER, OPRINT, OPRINTN, OREVERSE:
 		n := npos(r.pos(), builtinCall(op))
 		n.List.Set(r.exprList())
 		if op == OAPPEND {

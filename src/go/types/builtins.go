@@ -638,6 +638,22 @@ func (check *Checker) builtin(x *operand, call *ast.CallExpr, id builtinId) (_ b
 		}
 		// trace is only available in test mode - no need to record signature
 
+	case _Reverse:
+		var dst Type
+		if t, _ := x.typ.Underlying().(*Slice); t != nil {
+			dst = t.elem
+		}
+
+		if dst == nil {
+			check.invalidArg(x.pos(), "reverse expects slice argument; found %s ", x)
+			return
+		}
+
+		x.mode = novalue
+		if check.Types != nil {
+			check.recordBuiltinType(call.Fun, makeSig(nil))
+		}
+
 	default:
 		unreachable()
 	}

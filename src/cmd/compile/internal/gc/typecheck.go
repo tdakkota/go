@@ -1829,6 +1829,29 @@ func typecheck1(n *Node, top int) (res *Node) {
 			return n
 		}
 
+	case OREVERSE:
+		ok |= ctxStmt
+
+		if n.List.Len() != 1 {
+			yyerror("one argument expected, got %d", n.List.Len())
+			n.Type = nil
+			return n
+		} else {
+			s := n.List.Index(0)
+			s = typecheck(s, ctxExpr)
+
+			if s.Type == nil {
+				n.Type = nil
+				return n
+			}
+
+			if !s.Type.IsSlice() {
+				yyerror("expected slice, got %s", s.Type.String())
+				n.Type = nil
+				return n
+			}
+		}
+
 	case ORECOVER:
 		ok |= ctxExpr | ctxStmt
 		if n.List.Len() != 0 {

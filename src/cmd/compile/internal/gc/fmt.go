@@ -201,6 +201,7 @@ var goopnames = []string{
 	OREAL:     "real",
 	ORECV:     "<-",
 	ORECOVER:  "recover",
+	OREVERSE:  "reverse",
 	ORETURN:   "return",
 	ORSH:      ">>",
 	OSELECT:   "select",
@@ -1537,7 +1538,8 @@ func (n *Node) exprfmt(s fmt.State, prec int, mode fmtMode) {
 		OOFFSETOF,
 		OSIZEOF,
 		OPRINT,
-		OPRINTN:
+		OPRINTN,
+		OREVERSE:
 		if n.Left != nil {
 			mode.Fprintf(s, "%#v(%v)", n.Op, n.Left)
 			return

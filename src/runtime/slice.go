@@ -194,6 +194,45 @@ func isPowerOfTwo(x uintptr) bool {
 	return x&(x-1) == 0
 }
 
+func swapSlice(first, second []byte) {
+	for i := 0; i < len(first); i++ {
+		first[i], second[i] = second[i], first[i]
+	}
+}
+
+func reverse(to slice, width uintptr) {
+	if to.len <= 1 {
+		return
+	}
+
+	// save length and capacity, because we change it
+	length, capacity := to.len, to.cap
+
+	if raceenabled {
+		callerpc := getcallerpc()
+		pc := funcPC(reverse)
+		racereadrangepc(to.array, uintptr(length*int(width)), callerpc, pc)
+		racewriterangepc(to.array, uintptr(length*int(width)), callerpc, pc)
+	}
+	if msanenabled {
+		msanread(to.array, uintptr(length*int(width)))
+		msanwrite(to.array, uintptr(length*int(width)))
+	}
+
+	w := int(width)
+	to.len = to.len * w
+	to.cap = to.cap * w
+	sb := *(*[]byte)(unsafe.Pointer(&to))
+	for left, right := 0, length-1; left < right; left, right = left+1, right-1 {
+		lo := left * w
+		ro := right * w
+		swapSlice(sb[lo:lo+w], sb[ro:ro+w])
+	}
+
+	// restore saved length and capacity
+	to.len, to.cap = length, capacity
+}
+
 func slicecopy(toPtr unsafe.Pointer, toLen int, fmPtr unsafe.Pointer, fmLen int, width uintptr) int {
 	if fmLen == 0 || toLen == 0 {
 		return 0

@@ -743,6 +743,7 @@ const (
 	OSLICE3ARR   // Left[List[0] : List[1] : List[2]] (Left is array)
 	OSLICEHEADER // sliceheader{Left, List[0], List[1]} (Left is unsafe.Pointer, List[0] is length, List[1] is capacity)
 	ORECOVER     // recover()
+	OREVERSE     // reverse(Left)
 	ORECV        // <-Left
 	ORUNESTR     // Type(Left) (Type is string, Left is rune)
 	OSELRECV     // Left = <-Right.Left: (appears as .Left of OCASE; Right.Op == ORECV)

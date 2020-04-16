@@ -138,6 +138,7 @@ func walkstmt(n *Node) *Node {
 		OPANIC,
 		OEMPTY,
 		ORECOVER,
+		OREVERSE,
 		OGETG:
 		if n.Typecheck() == 0 {
 			Fatalf("missing typecheck: %+v", n)
@@ -545,6 +546,12 @@ opswitch:
 
 	case OPRINT, OPRINTN:
 		n = walkprint(n, init)
+
+	case OREVERSE:
+		s := n.List.Index(0)
+		fn := syslook("reverse")
+		fn = substArgTypes(fn, s.Type)
+		n = mkcall1(fn, nil, init, s, nodintconst(s.Type.Elem().Width))
 
 	case OPANIC:
 		n = mkcall("gopanic", nil, init, n.Left)

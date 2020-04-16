@@ -384,7 +384,7 @@ func (e *Escape) stmt(n *Node) {
 		for i, v := range n.List.Slice() {
 			e.assign(asNode(results[i].Nname), v, "return", n)
 		}
-	case OCALLFUNC, OCALLMETH, OCALLINTER, OCLOSE, OCOPY, ODELETE, OPANIC, OPRINT, OPRINTN, ORECOVER:
+	case OCALLFUNC, OCALLMETH, OCALLINTER, OCLOSE, OCOPY, ODELETE, OPANIC, OPRINT, OPRINTN, ORECOVER, OREVERSE:
 		e.call(nil, n, nil)
 	case OGO, ODEFER:
 		e.stmts(n.Left.Ninit)
@@ -502,7 +502,7 @@ func (e *Escape) exprSkipInit(k EscHole, n *Node) {
 	case ORECV:
 		e.discard(n.Left)
 
-	case OCALLMETH, OCALLFUNC, OCALLINTER, OLEN, OCAP, OCOMPLEX, OREAL, OIMAG, OAPPEND, OCOPY:
+	case OCALLMETH, OCALLFUNC, OCALLINTER, OLEN, OCAP, OCOMPLEX, OREAL, OIMAG, OAPPEND, OCOPY, OREVERSE:
 		e.call([]EscHole{k}, n, nil)
 
 	case ONEW:
@@ -739,7 +739,7 @@ func (e *Escape) call(ks []EscHole, call, where *Node) {
 		recv = call.Left.Left
 	case OAPPEND, ODELETE, OPRINT, OPRINTN, ORECOVER:
 		// ok
-	case OLEN, OCAP, OREAL, OIMAG, OCLOSE, OPANIC:
+	case OLEN, OCAP, OREAL, OIMAG, OCLOSE, OPANIC, OREVERSE:
 		args = []*Node{call.Left}
 	case OCOMPLEX, OCOPY:
 		args = []*Node{call.Left, call.Right}

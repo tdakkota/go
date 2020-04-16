@@ -632,6 +632,7 @@ func (o *Order) stmt(n *Node) {
 		OPRINT,
 		OPRINTN,
 		ORECOVER,
+		OREVERSE,
 		ORECV:
 		t := o.markTemp()
 		n.Left = o.expr(n.Left, nil)
@@ -1151,6 +1152,7 @@ func (o *Order) expr(n, lhs *Node) *Node {
 		ONEW,
 		OREAL,
 		ORECOVER,
+		OREVERSE,
 		OSTR2BYTES,
 		OSTR2BYTESTMP,
 		OSTR2RUNES:

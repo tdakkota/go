@@ -134,6 +134,8 @@ const (
 	// testing support
 	_Assert
 	_Trace
+
+	_Reverse
 )
 
 var predeclaredFuncs = [...]struct {
@@ -162,8 +164,9 @@ var predeclaredFuncs = [...]struct {
 	_Offsetof: {"Offsetof", 1, false, expression},
 	_Sizeof:   {"Sizeof", 1, false, expression},
 
-	_Assert: {"assert", 1, false, statement},
-	_Trace:  {"trace", 0, true, statement},
+	_Assert:  {"assert", 1, false, statement},
+	_Trace:   {"trace", 0, true, statement},
+	_Reverse: {"reverse", 1, false, statement},
 }
 
 func defPredeclaredFuncs() {

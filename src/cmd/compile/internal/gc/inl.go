@@ -382,6 +382,9 @@ func (v *hairyVisitor) visit(n *Node) bool {
 		v.reason = "call to recover"
 		return true
 
+	case OREVERSE:
+		return true
+
 	case OCLOSURE,
 		OCALLPART,
 		ORANGE,

@@ -76,6 +76,7 @@ func stringtoslicebyte(*[32]byte, string) []byte
 func stringtoslicerune(*[32]rune, string) []rune
 func slicecopy(toPtr *any, toLen int, frPtr *any, frLen int, wid uintptr) int
 func slicestringcopy(toPtr *byte, toLen int, fr string) int
+func reverse(arr any, wid uintptr)
 
 func decoderune(string, int) (retv rune, retk int)
 func countrunes(string) int
