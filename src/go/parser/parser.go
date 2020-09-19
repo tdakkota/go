@@ -428,7 +428,7 @@ func (p *parser) expectClosing(tok token.Token, context string) token.Pos {
 
 func (p *parser) expectSemi() {
 	// semicolon is optional before a closing ')' or '}'
-	if p.tok != token.RPAREN && p.tok != token.RBRACE {
+	if p.tok != token.RPAREN && p.tok != token.RBRACE && p.tok != token.OR {
 		switch p.tok {
 		case token.COMMA:
 			// permit a ',' instead of a ';' but complain
@@ -2419,6 +2419,19 @@ func (p *parser) parseTypeList() (list []ast.Expr) {
 	return
 }
 
+func (p *parser) parseSumType() (s *ast.SumType) {
+	var list []ast.Expr
+
+	pos := p.pos
+	list = append(list, p.parseType(true))
+	for p.tok == token.OR {
+		p.next()
+		list = append(list, p.parseType(true))
+	}
+
+	return &ast.SumType{Sum: pos, Variants: list}
+}
+
 func (p *parser) parseCaseClause(typeSwitch bool) *ast.CaseClause {
 	if p.trace {
 		defer un(trace(p, "CaseClause"))
@@ -2971,6 +2984,13 @@ func (p *parser) parseTypeSpec(doc *ast.CommentGroup, _ token.Pos, _ token.Token
 			// type alias
 			spec.Assign = p.pos
 			p.next()
+		}
+		if p.tok == token.DEFINE {
+			// sum type
+			spec.Assign = p.pos
+			p.next()
+			spec.Type = p.parseSumType()
+			break
 		}
 		spec.Type = p.parseType(true)
 	}
