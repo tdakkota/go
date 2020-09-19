@@ -368,6 +368,11 @@ func Walk(v Visitor, node Node) {
 			Walk(v, f)
 		}
 
+	case *SumType:
+		for _, variant := range n.Variants {
+			Walk(v, variant)
+		}
+
 	default:
 		panic(fmt.Sprintf("ast.Walk: unexpected node type %T", n))
 	}

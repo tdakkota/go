@@ -465,6 +465,11 @@ type (
 		Dir   ChanDir   // channel direction
 		Value Expr      // value type
 	}
+
+	SumType struct {
+		Sum      token.Pos
+		Variants []Expr
+	}
 )
 
 // Pos and End implementations for expression/type nodes.
@@ -501,6 +506,7 @@ func (x *FuncType) Pos() token.Pos {
 func (x *InterfaceType) Pos() token.Pos { return x.Interface }
 func (x *MapType) Pos() token.Pos       { return x.Map }
 func (x *ChanType) Pos() token.Pos      { return x.Begin }
+func (x *SumType) Pos() token.Pos       { return x.Sum }
 
 func (x *BadExpr) End() token.Pos { return x.To }
 func (x *Ident) End() token.Pos   { return token.Pos(int(x.NamePos) + len(x.Name)) }
@@ -534,6 +540,7 @@ func (x *FuncType) End() token.Pos {
 func (x *InterfaceType) End() token.Pos { return x.Methods.End() }
 func (x *MapType) End() token.Pos       { return x.Value.End() }
 func (x *ChanType) End() token.Pos      { return x.Value.End() }
+func (x *SumType) End() token.Pos       { return x.Variants[len(x.Variants)-1].End() }
 
 // exprNode() ensures that only expression/type nodes can be
 // assigned to an Expr.
@@ -561,6 +568,7 @@ func (*FuncType) exprNode()      {}
 func (*InterfaceType) exprNode() {}
 func (*MapType) exprNode()       {}
 func (*ChanType) exprNode()      {}
+func (*SumType) exprNode()       {}
 
 // ----------------------------------------------------------------------------
 // Convenience functions for Idents
