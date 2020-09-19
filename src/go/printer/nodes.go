@@ -1033,6 +1033,14 @@ func (p *printer) expr1(expr ast.Expr, prec1, depth int) {
 		p.print(blank)
 		p.expr(x.Value)
 
+	case *ast.SumType:
+		for i := 0; i < len(x.Variants)-1; i++ {
+			p.expr(x.Variants[i])
+			p.print(blank)
+			p.print(token.OR)
+		}
+		p.expr(x.Variants[len(x.Variants)-1])
+
 	default:
 		panic("unreachable")
 	}
