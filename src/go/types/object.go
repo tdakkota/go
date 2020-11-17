@@ -260,6 +260,7 @@ type Var struct {
 	embedded bool // if set, the variable is an embedded struct field, and name is the type name
 	isField  bool // var is struct field
 	used     bool // set if the variable was used
+	captured bool // set if the variable was captured by closure
 }
 
 // NewVar returns a new variable.

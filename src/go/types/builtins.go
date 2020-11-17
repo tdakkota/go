@@ -84,6 +84,10 @@ func (check *Checker) builtin(x *operand, call *ast.CallExpr, id builtinId) (_ b
 		if s := S.Slice(); s != nil {
 			T = s.elem
 		} else {
+			if frozen, _ := S.(*Frozen); frozen != nil && frozen.base.Slice() != nil {
+				check.invalidArg(x.pos(), "can't mutate frozen")
+				return
+			}
 			check.invalidArg(x.pos(), "%s is not a slice", x)
 			return
 		}
@@ -193,6 +197,15 @@ func (check *Checker) builtin(x *operand, call *ast.CallExpr, id builtinId) (_ b
 			}) {
 				mode = value
 			}
+		case *Frozen:
+			switch t.base.(type) {
+			case *Slice, *Chan:
+				mode = value
+			case *Map:
+				if id == _Len {
+					mode = value
+				}
+			}
 		}
 
 		if mode == invalid && typ != Typ[Invalid] {
@@ -209,6 +222,11 @@ func (check *Checker) builtin(x *operand, call *ast.CallExpr, id builtinId) (_ b
 
 	case _Close:
 		// close(c)
+		if frozen, _ := x.typ.(*Frozen); frozen != nil && frozen.base.Chan() != nil {
+			check.invalidArg(x.pos(), "can't mutate frozen")
+			return
+		}
+
 		c := x.typ.Chan()
 		if c == nil {
 			check.invalidArg(x.pos(), "%s is not a channel", x)
@@ -322,6 +340,10 @@ func (check *Checker) builtin(x *operand, call *ast.CallExpr, id builtinId) (_ b
 		if t := x.typ.Slice(); t != nil {
 			dst = t.elem
 		}
+		if t, _ := x.typ.(*Frozen); t != nil {
+			check.invalidArg(x.pos(), "can't mutate frozen")
+			return
+		}
 
 		var y operand
 		arg(&y, 1)
@@ -336,6 +358,10 @@ func (check *Checker) builtin(x *operand, call *ast.CallExpr, id builtinId) (_ b
 			}
 		case *Slice:
 			src = t.elem
+		case *Frozen:
+			if s := t.base.Slice(); s != nil {
+				src = s.elem
+			}
 		}
 
 		if dst == nil || src == nil {
@@ -356,11 +382,23 @@ func (check *Checker) builtin(x *operand, call *ast.CallExpr, id builtinId) (_ b
 
 	case _Delete:
 		// delete(m, k)
+		frozen, _ := x.typ.(*Frozen)
+		if frozen != nil {
+			if frozen.base.Map() == nil {
+				check.invalidArg(x.pos(), "%s is not a map", x)
+				return
+			}
+
+			check.invalidArg(x.pos(), "%s can't mutate frozen", x)
+			return
+		}
+
 		m := x.typ.Map()
 		if m == nil {
 			check.invalidArg(x.pos(), "%s is not a map", x)
 			return
 		}
+
 		arg(x, 1) // k
 		if x.mode == invalid {
 			return
@@ -687,8 +725,49 @@ func (check *Checker) builtin(x *operand, call *ast.CallExpr, id builtinId) (_ b
 			check.dump("%v: %s", x1.pos(), x1)
 			x1 = &t // use incoming x only for first argument
 		}
-		// trace is only available in test mode - no need to record signature
+	// trace is only available in test mode - no need to record signature
 
+	case _Freeze:
+		// freeze(x T) frozen[T]
+		ident, _ := call.Args[0].(*ast.Ident)
+		arg(x, 0) // x
+
+		if ident != nil {
+			if v, _ := check.scope.Lookup(ident.Name).(*Var); v != nil && v.captured {
+				check.invalidArg(call.Args[0].Pos(), "freeze argument must not be captured by closure")
+				return
+			}
+		}
+
+		if x.mode == invalid {
+			return
+		}
+		check.assignment(x, nil, "argument to freeze(x T)")
+		T := x.typ
+		checkType := func(T Type) bool {
+			switch optype(T.Under()).(type) {
+			case *Pointer:
+				return true
+			case *Map:
+				return true
+			case *Chan:
+				return true
+			case *Slice:
+				return true
+			}
+
+			return false
+		}
+		if !checkType(T) {
+			check.invalidArg(call.Args[0].Pos(), "freeze argument must be a reference type, got %s", TypeString(T, nil))
+			return
+		}
+
+		x.mode = value
+		x.typ = &Frozen{base: T}
+		if check.Types != nil {
+			check.recordBuiltinType(call.Fun, makeSig(x.typ, T))
+		}
 	default:
 		unreachable()
 	}

@@ -361,9 +361,14 @@ func (check *Checker) identical0(x, y Type, cmpTags bool, p *ifacePair) bool {
 	//	unreachable since types are expanded
 
 	case *bottom, *top:
-		// Either both types are theBottom, or both are theTop in which
-		// case the initial x == y check will have caught them. Otherwise
-		// they are not identical.
+	// Either both types are theBottom, or both are theTop in which
+	// case the initial x == y check will have caught them. Otherwise
+	// they are not identical.
+
+	case *Frozen:
+		if y, ok := y.(*Frozen); ok {
+			return check.identical(x.base, y.base)
+		}
 
 	case nil:
 		// avoid a crash in case of nil type

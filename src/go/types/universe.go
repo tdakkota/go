@@ -138,6 +138,7 @@ const (
 	_Println
 	_Real
 	_Recover
+	_Freeze
 
 	// package unsafe
 	_Alignof
@@ -170,6 +171,7 @@ var predeclaredFuncs = [...]struct {
 	_Println: {"println", 0, true, statement},
 	_Real:    {"real", 1, false, expression},
 	_Recover: {"recover", 0, false, statement},
+	_Freeze:  {"freeze", 1, false, expression},
 
 	_Alignof:  {"Alignof", 1, false, expression},
 	_Offsetof: {"Offsetof", 1, false, expression},

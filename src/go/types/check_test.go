@@ -308,3 +308,7 @@ func testDir(t *testing.T, dir string) {
 		checkFiles(t, []string{path}, false)
 	}
 }
+
+func TestFreeze(t *testing.T) {
+	testDir(t, "freezetest")
+}

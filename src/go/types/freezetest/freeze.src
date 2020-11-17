@@ -1,0 +1,64 @@
+package m
+
+type T struct{
+    field int
+}
+
+func pointer() {
+    _ = freeze(0 /* ERROR invalid argument: freeze argument must be a reference type, got int */)
+    v := freeze(new(T))
+    v /* ERROR cannot assign to frozen v.field */ .field = 1
+    println(v.field)
+}
+
+func mapType() {
+    v := freeze(map[string]struct{}{})
+
+    v /* ERROR cannot assign to frozen v\["a"\] */ ["a"] = struct{}{}
+    delete(v /* ERROR invalid argument: v \(variable of type frozen\[map\[string\]struct\{\}\]\) can't mutate frozen */, "a")
+    b := v
+    b /* ERROR cannot assign to frozen b\["a"\] */ ["a"] = struct{}{}
+
+    println(v["a"])
+    println(len(v))
+}
+
+func sliceType() {
+    v := freeze(make([]int, 10))
+
+    v = append(v /* ERROR invalid argument: can't mutate frozen */, 10)
+    v /* ERROR cannot assign to frozen v\[0\] */[0] = 1
+    b := v
+    b /* ERROR cannot assign to frozen b\[0\] */[0] = 1
+
+    var vCopy []int
+    copy(vCopy, v)
+    v = v[:0]
+    println(v[0])
+    println(len(v))
+    println(cap(v))
+}
+
+func chanType() {
+    v := freeze(make(chan int))
+
+    v <- 1 /* ERROR invalid operation: cannot send to frozen\[chan int\] */
+    <-v  /* ERROR invalid operation: cannot receive from frozen\[chan int\] */
+    close(v /* ERROR invalid argument: can't mutate frozen */ )
+    b := v
+    <-b /* ERROR invalid operation: cannot receive from frozen\[chan int\] */
+
+    println(len(v))
+    println(cap(v))
+}
+
+func closure() func() {
+    ch := make(chan int)
+    f := func() {
+        ch <- 1
+    }
+
+    _ = freeze(ch /* ERROR invalid argument: freeze argument must not be captured by closure */ )
+
+    return f
+}

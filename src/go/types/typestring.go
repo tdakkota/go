@@ -297,6 +297,11 @@ func writeType(buf *bytes.Buffer, typ Type, qf Qualifier, visited []Type) {
 	case *top:
 		buf.WriteString("⊤")
 
+	case *Frozen:
+		buf.WriteString("frozen[")
+		writeType(buf, t.base, qf, visited)
+		buf.WriteString("]")
+
 	default:
 		// For externally defined implementations of Type.
 		buf.WriteString(t.String())

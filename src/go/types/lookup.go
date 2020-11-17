@@ -447,6 +447,10 @@ func deref(typ Type) (Type, bool) {
 	if p, _ := typ.(*Pointer); p != nil {
 		return p.base, true
 	}
+	if p, _ := typ.(*Frozen); p != nil {
+		v, _ := deref(p.base)
+		return v, true
+	}
 	return typ, false
 }
 

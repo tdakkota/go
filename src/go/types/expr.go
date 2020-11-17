@@ -96,6 +96,12 @@ func (check *Checker) unary(x *operand, e *ast.UnaryExpr, op token.Token) {
 	case token.ARROW:
 		typ := x.typ.Chan()
 		if typ == nil {
+			if frozen, _ := x.typ.(*Frozen); frozen != nil {
+				check.invalidOp(x.pos(), "cannot receive from %s", x.typ)
+				x.mode = invalid
+				return
+			}
+
 			check.invalidOp(x.pos(), "cannot receive from non-channel %s", x)
 			x.mode = invalid
 			return
@@ -1399,6 +1405,33 @@ func (check *Checker) exprInternal(x *operand, e ast.Expr, hint Type) exprKind {
 			x.expr = e
 			return expression
 
+		case *Frozen:
+			switch t := typ.base.(type) {
+			case *Pointer:
+				if elem := t.base.Slice(); elem != nil {
+					valid = true
+					x.mode = variable
+					x.typ = elem
+				}
+			case *Slice:
+				valid = true
+				x.mode = variable
+				x.typ = t.elem
+			case *Map:
+				var key operand
+				check.expr(&key, e.Index)
+				check.assignment(&key, t.key, "map index")
+				if x.mode == invalid {
+					goto Error
+				}
+
+				valid = true
+				x.mode = mapindex
+				x.typ = t.elem
+				x.expr = e
+			}
+			return expression
+
 		case *Sum:
 			// A sum type can be indexed if all the sum's types
 			// support indexing and have the same element type.
@@ -1498,6 +1531,12 @@ func (check *Checker) exprInternal(x *operand, e ast.Expr, hint Type) exprKind {
 				valid = true
 				length = typ.len
 				x.typ = &Slice{elem: typ.elem}
+			}
+
+		case *Frozen:
+			if typ := typ.base.Slice(); typ != nil {
+				valid = true
+				x.typ = &Frozen{base: &Slice{elem: typ.elem}}
 			}
 
 		case *Slice:

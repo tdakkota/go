@@ -40,6 +40,13 @@ func (check *Checker) funcBody(decl *declInfo, name string, sig *Signature, body
 	check.indent = 0
 
 	check.stmtList(0, body.List)
+	if name == "<function literal>" {
+		for _, elem := range sig.scope.parent.elems {
+			if v, _ := elem.(*Var); v != nil {
+				v.captured = true
+			}
+		}
+	}
 
 	if check.hasLabel {
 		check.labels(body)
@@ -355,6 +362,10 @@ func (check *Checker) stmt(ctxt stmtContext, s ast.Stmt) {
 
 		tch := ch.typ.Chan()
 		if tch == nil {
+			if frozen, _ := ch.typ.(*Frozen); frozen != nil {
+				check.invalidOp(x.pos(), "cannot send to %s", ch.typ)
+				return
+			}
 			check.invalidOp(s.Arrow, "cannot send to non-chan type %s", ch.typ)
 			return
 		}

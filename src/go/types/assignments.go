@@ -155,6 +155,22 @@ func (check *Checker) assignVar(lhs ast.Expr, x *operand) Type {
 		return x.typ
 	}
 
+	if sel, ok := lhs.(*ast.SelectorExpr); ok {
+		var op operand
+		check.expr(&op, sel.X)
+		if _, ok := op.typ.(*Frozen); ok {
+			check.errorf(sel.Pos(), "cannot assign to frozen %s", ExprString(sel))
+		}
+	}
+
+	if sel, ok := lhs.(*ast.IndexExpr); ok {
+		var op operand
+		check.expr(&op, sel.X)
+		if _, ok := op.typ.(*Frozen); ok {
+			check.errorf(sel.Pos(), "cannot assign to frozen %s", ExprString(sel))
+		}
+	}
+
 	// If the lhs is an identifier denoting a variable v, this assignment
 	// is not a 'use' of v. Remember current value of v.used and restore
 	// after evaluating the lhs via check.expr.
